@@ -251,3 +251,15 @@ class RealtimeMetricsEntry(BaseModel):
     field_5: str | None = None  # 分组维度
     field_6: str | None = None  # 输出表名
     field_7: str | None = None  # 指标版本
+
+class RecoveryIndexEntry(BaseModel):
+    """任务恢复索引明细结构。"""
+
+    field_0: str | None = None  # 索引编号
+    field_1: str | None = None  # 任务编号
+    field_2: str | None = None  # 任务版本
+    field_3: str | None = None  # 输出表名
+    field_4: str | None = None  # 下一检查点
+    field_5: str | None = None  # 检查点时间
+    field_6: str | None = None  # 候选检查点数
+    field_7: str | None = None  # 来源模块

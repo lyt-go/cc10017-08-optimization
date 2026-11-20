@@ -112,5 +112,23 @@ class FlinkJobService:
         self._ensure_artifact_table("flink_compute_artifacts")
         return [a for a in store.rows("flink_compute_artifacts") if a.get("job_id") == entry_id]
 
+    def list_checkpoint_jobs(self) -> list[dict[str, Any]]:
+        """列出有检查点库存的流式任务，供恢复索引生成时筛选任务版本。"""
+        jobs: list[dict[str, Any]] = []
+        for row in store.rows(MODULE):
+            ckpts = [c for c in store.rows("flink_checkpoints")
+                     if str(c.get("任务编号")) == str(row.get("任务编号"))]
+            if not ckpts:
+                continue
+            jobs.append({
+                "id": row.get("id"),
+                "任务编号": row.get("任务编号"),
+                "输出表名": row.get("输出表名"),
+                "status": row.get("status"),
+                "检查点数": len(ckpts),
+                "任务版本列表": sorted({str(c.get("任务版本", "")) for c in ckpts}),
+            })
+        return jobs
+
     def _ensure_artifact_table(self, name: str) -> None:
         store.rows(name)

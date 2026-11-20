@@ -90,3 +90,12 @@ def run_action(entry_id: int, payload: ActionPayload) -> ActionResult:
     if entry is None:
         return ActionResult(ok=False, message=message)
     return ActionResult(ok=True, message=message, entry=entry)
+
+
+@router.post("/{entry_id}/verify-checkpoints", response_model=ActionResult)
+def verify_checkpoints(entry_id: int) -> ActionResult:
+    """核对候选检查点：基于任务恢复索引数据表校验字段版本，确认不再扫描最早状态。"""
+    result, message = service.verify_checkpoint_candidates(entry_id)
+    if result is None:
+        return ActionResult(ok=False, message=message)
+    return ActionResult(ok=True, message=message, entry=result)

@@ -48,6 +48,14 @@
             >
               {{ action }}
             </button>
+            <button
+              class="link"
+              type="button"
+              :data-testid="`verify-${row.id}`"
+              @click="verifyCheckpoints(row)"
+            >
+              核对检查点
+            </button>
           </td>
         </tr>
         <tr v-if="!rows.length">
@@ -70,6 +78,29 @@
           </button>
         </div>
       </form>
+    </div>
+
+    <div v-if="verification" class="verify-panel" data-testid="verify-panel">
+      <p>
+        <strong>候选检查点核对：{{ verification.规则编号 }}</strong>
+        — 关联任务 {{ verification.任务编号 }}，生效版本 {{ verification.生效版本 }}，
+        最早检查点 {{ verification.最早检查点 }}，结论：{{ verification.结论 }}
+      </p>
+      <table class="data-table">
+        <thead>
+          <tr><th>索引编号</th><th>任务版本</th><th>下一检查点</th><th>检查点字段版本</th><th>字段版本校验</th><th>不再扫描最早状态</th></tr>
+        </thead>
+        <tbody>
+          <tr v-for="check in verification.核对结果" :key="check.索引编号">
+            <td>{{ check.索引编号 }}</td>
+            <td>{{ check.任务版本 }}</td>
+            <td>{{ check.下一检查点 }}</td>
+            <td>{{ check.检查点字段版本 }}</td>
+            <td>{{ check.字段版本校验 }}</td>
+            <td>{{ check.不再扫描最早状态 }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <footer class="page-foot">
@@ -100,6 +131,7 @@ const filterFields = columns.slice(0, 3)
 const showCreate = ref(false)
 const creating = ref(false)
 const createValues = ref<Record<string, string>>({})
+const verification = ref<any>(null)
 const stats = computed(() => [
   { label: metricNames[0], value: total.value },
   { label: metricNames[1], value: rows.value.filter((row) => row.status === statuses[1]).length },
@@ -168,6 +200,19 @@ async function runAction(action: string, row: Row) {
   }
 }
 
+async function verifyCheckpoints(row: Row) {
+  errorMessage.value = ''
+  verification.value = null
+  try {
+    const response = await request(`${ENDPOINT}/${row.id}/verify-checkpoints`, { method: 'POST' })
+    const payload = await response.json()
+    if (!response.ok || !payload.ok) throw new Error(payload.message || '候选检查点核对失败')
+    verification.value = payload.entry
+  } catch (error) {
+    errorMessage.value = error instanceof Error ? error.message : '候选检查点核对失败'
+  }
+}
+
 async function reload() {
   errorMessage.value = ''
   const query = new URLSearchParams(filters.value as Record<string, string>).toString()
@@ -186,3 +231,8 @@ async function reload() {
 
 onMounted(reload)
 </script>
+
+<style scoped>
+.verify-panel { margin-top: 12px; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 13px; }
+.verify-panel .data-table { margin-top: 8px; }
+</style>

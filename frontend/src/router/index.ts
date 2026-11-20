@@ -19,6 +19,7 @@ const BackfillStream = () => import('@/views/backfill_stream/index.vue')
 const SinkDispatch = () => import('@/views/sink_dispatch/index.vue')
 const TtlPolicy = () => import('@/views/ttl_policy/index.vue')
 const RealtimeMetrics = () => import('@/views/realtime_metrics/index.vue')
+const RecoveryIndex = () => import('@/views/recovery_index/index.vue')
 
 const router = createRouter({
   history: createWebHistory(),
@@ -42,6 +43,7 @@ const router = createRouter({
     { path: '/sink_dispatch', name: 'sink_dispatch', component: SinkDispatch },
     { path: '/ttl_policy', name: 'ttl_policy', component: TtlPolicy },
     { path: '/realtime_metrics', name: 'realtime_metrics', component: RealtimeMetrics },
+    { path: '/recovery_index', name: 'recovery_index', component: RecoveryIndex },
   ],
 })
 
